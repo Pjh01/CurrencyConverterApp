@@ -9,7 +9,9 @@ import UIKit
 
 extension ExchangeRateViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    
+    let selectedRate = filteredData[indexPath.row]
+    let calculatorVC = CalculatorViewController(selected: selectedRate)
+    navigationController?.pushViewController(calculatorVC, animated: true)
   }
 }
 

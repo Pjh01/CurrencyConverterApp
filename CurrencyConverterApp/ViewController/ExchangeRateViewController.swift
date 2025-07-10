@@ -26,6 +26,9 @@ class ExchangeRateViewController: UIViewController {
   
   private func setupUI() {
     view.backgroundColor = .systemBackground
+    navigationItem.title = "환율 정보"
+    navigationController?.navigationBar.prefersLargeTitles = true
+    navigationItem.largeTitleDisplayMode = .always
   }
   
   private func setupDelegates() {
