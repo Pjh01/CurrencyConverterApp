@@ -47,6 +47,7 @@ class DataService {
       let rates = currencyData.rates.map { currencyCode, rate in
         ExchangeRateData(
           currencyCode: currencyCode,
+          country: CountryData[currencyCode] ?? "Unknown",
           rate: rate,
         )
       }
