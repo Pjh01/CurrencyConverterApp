@@ -7,6 +7,7 @@
 
 struct ExchangeRateData {
   let currencyCode: String
+  let country: String
   let rate: Double
   
   var formattedRate: String {
