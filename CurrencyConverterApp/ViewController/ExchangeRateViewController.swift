@@ -9,8 +9,9 @@ import UIKit
 
 class ExchangeRateViewController: UIViewController {
   
-  private let exchangeRateView = ExchangeRateView()
+  let exchangeRateView = ExchangeRateView()
   var allData = [ExchangeRateData]()
+  var filteredData = [ExchangeRateData]()
   
   override func loadView() {
     self.view = exchangeRateView
@@ -30,16 +31,18 @@ class ExchangeRateViewController: UIViewController {
   private func setupDelegates() {
     exchangeRateView.tableView.delegate = self
     exchangeRateView.tableView.dataSource = self
+    exchangeRateView.searchBar.delegate = self
   }
   
   private func fetchCurrencyData() {
     Task {
       do {
         let result = try await DataService().fetchCurrencyData()
-        self.allData = result
-        self.exchangeRateView.tableView.reloadData()
+        allData = result
+        filteredData = result
+        exchangeRateView.tableView.reloadData()
       } catch {
-        self.showAlert(DataError.parsingFailed)
+        showAlert(DataError.parsingFailed)
       }
     }
   }
