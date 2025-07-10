@@ -10,6 +10,8 @@ import SnapKit
 
 class CalculatorView: UIView {
   
+  var convertButtonTapped: ((String) -> Void)?
+  
   private let currencyLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 24, weight: .bold)
@@ -103,7 +105,9 @@ class CalculatorView: UIView {
   }
   
   @objc private func handleConvertButtonTap() {
-    
+    endEditing(true) // 키보드 닫기
+    let input = amountTextField.text ?? ""
+    convertButtonTapped?(input)
   }
 }
 
