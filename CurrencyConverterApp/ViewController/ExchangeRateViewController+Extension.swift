@@ -9,32 +9,27 @@ import UIKit
 
 extension ExchangeRateViewController: UITableViewDelegate {
   func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-    let selectedRate = filteredData[indexPath.row]
-    let calculatorVC = CalculatorViewController(selected: selectedRate)
+    let selectedRate = exchangeRateViewModel.state.rates[indexPath.row]
+    let calculatorVC = CalculatorViewController(viewModel: CalculatorViewModel(rateData: selectedRate))
     navigationController?.pushViewController(calculatorVC, animated: true)
   }
 }
 
 extension ExchangeRateViewController: UITableViewDataSource {
   func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-    return filteredData.count
+    return exchangeRateViewModel.state.rates.count
   }
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: ExchangeRateCell.id) as? ExchangeRateCell else { return UITableViewCell() }
-    cell.configureCell(filteredData[indexPath.row])
+    cell.configureCell(exchangeRateViewModel.state.rates[indexPath.row])
     return cell
   }
 }
 
 extension ExchangeRateViewController: UISearchBarDelegate {
   func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
-    filteredData = searchText.isEmpty
-    ? allData
-    : allData.filter { $0.currencyCode.localizedCaseInsensitiveContains(searchText) || $0.country.localizedCaseInsensitiveContains(searchText)}
-    
-    exchangeRateView.updateTableViewBackground(isEmpty: filteredData.isEmpty)
-    exchangeRateView.tableView.reloadData()
+    exchangeRateViewModel.action?(.search(searchText))
   }
   
   // 검색 버튼 클릭 시 호출: 키보드 내리기

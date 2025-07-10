@@ -37,7 +37,7 @@ final class ExchangeRateCell: UITableViewCell {
     let label = UILabel()
     label.font = .systemFont(ofSize: 16)
     label.textAlignment = .right
-    label.textColor = .label //.black
+    label.textColor = .label
     return label
   }()
   

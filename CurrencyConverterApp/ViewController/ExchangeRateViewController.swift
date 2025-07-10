@@ -10,8 +10,7 @@ import UIKit
 class ExchangeRateViewController: UIViewController {
   
   let exchangeRateView = ExchangeRateView()
-  var allData = [ExchangeRateData]()
-  var filteredData = [ExchangeRateData]()
+  let exchangeRateViewModel = ExchangeRateViewModel()
   
   override func loadView() {
     self.view = exchangeRateView
@@ -21,7 +20,8 @@ class ExchangeRateViewController: UIViewController {
     super.viewDidLoad()
     setupUI()
     setupDelegates()
-    fetchCurrencyData()
+    bindViewModel()
+    exchangeRateViewModel.action?(.fetch)
   }
   
   private func setupUI() {
@@ -37,21 +37,21 @@ class ExchangeRateViewController: UIViewController {
     exchangeRateView.searchBar.delegate = self
   }
   
-  private func fetchCurrencyData() {
-    Task {
-      do {
-        let result = try await DataService().fetchCurrencyData()
-        allData = result
-        filteredData = result
-        exchangeRateView.tableView.reloadData()
-      } catch {
-        showAlert(DataError.parsingFailed)
+  private func bindViewModel() {
+    exchangeRateViewModel.onStateChange = { [weak self] state in
+      DispatchQueue.main.async {
+        if let message = state.errorMessage {
+          self?.showAlert(message)
+        }
+        
+        self?.exchangeRateView.updateTableViewBackground(isEmpty: state.isEmpty)
+        self?.exchangeRateView.tableView.reloadData()
       }
     }
   }
   
-  func showAlert(_ error: Error) {
-    let alert = UIAlertController(title: "오류", message: error.localizedDescription, preferredStyle: .alert)
+  func showAlert(_ message: String) {
+    let alert = UIAlertController(title: "오류", message: message, preferredStyle: .alert)
     alert.addAction(.init(title: "확인", style: .default))
     present(alert, animated: true)
   }
