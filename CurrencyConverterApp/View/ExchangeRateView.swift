@@ -25,6 +25,14 @@ class ExchangeRateView: UIView {
     return tableView
   }()
   
+  private let filterLabel: UILabel = {
+    let label = UILabel()
+    label.text = "검색 결과 없음"
+    label.textColor = .secondaryLabel
+    label.textAlignment = .center
+    return label
+  }()
+  
   override init(frame: CGRect) {
     super.init(frame: frame)
     setupUI()
@@ -49,4 +57,7 @@ class ExchangeRateView: UIView {
     }
   }
   
+  func updateTableViewBackground(isEmpty: Bool) {
+    tableView.backgroundView = isEmpty ? filterLabel : nil
+  }
 }
