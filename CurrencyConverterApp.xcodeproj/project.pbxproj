@@ -18,7 +18,7 @@
 		AFCC233F2E1F505D00CC93B5 /* Exceptions for "CurrencyConverterApp" folder in "CurrencyConverterApp" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Info.plist,
+				App/Info.plist,
 			);
 			target = AFCC23292E1F505C00CC93B5 /* CurrencyConverterApp */;
 		};

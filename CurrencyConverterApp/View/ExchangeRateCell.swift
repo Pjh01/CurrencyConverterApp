@@ -43,6 +43,13 @@ final class ExchangeRateCell: UITableViewCell {
     return label
   }()
   
+  private let rateChangeLabel: UILabel = {
+      let label = UILabel()
+      label.font = .systemFont(ofSize: 16)
+      label.textAlignment = .center
+      return label
+  }()
+  
   private lazy var favoriteButton: UIButton = {
     let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
     let button = UIButton()
@@ -70,7 +77,7 @@ final class ExchangeRateCell: UITableViewCell {
   private func setupUI() {
     contentView.backgroundColor = .systemBackground
     [currencyLabel, countryLabel].forEach { labelStackView.addArrangedSubview($0) }
-    [labelStackView, rateLabel, favoriteButton].forEach { contentView.addSubview($0) }
+    [labelStackView, rateLabel, rateChangeLabel, favoriteButton].forEach { contentView.addSubview($0) }
     
     labelStackView.snp.makeConstraints {
       $0.leading.equalToSuperview().inset(16)
@@ -83,10 +90,16 @@ final class ExchangeRateCell: UITableViewCell {
       $0.width.equalTo(120)
     }
     
+    rateChangeLabel.snp.makeConstraints {
+      $0.centerY.equalToSuperview()
+      $0.width.height.equalTo(20)
+      $0.leading.equalTo(rateLabel.snp.trailing).offset(8)
+    }
+    
     favoriteButton.snp.makeConstraints {
       $0.trailing.equalToSuperview().inset(16)
       $0.centerY.equalToSuperview()
-      $0.leading.equalTo(rateLabel.snp.trailing).offset(16)
+      $0.leading.equalTo(rateChangeLabel.snp.trailing).offset(16)
     }
   }
   
@@ -94,6 +107,7 @@ final class ExchangeRateCell: UITableViewCell {
     currencyLabel.text = data.currencyCode
     countryLabel.text = data.country
     rateLabel.text = data.formattedRate
+    rateChangeLabel.text = data.changeStatus.icon
     favoriteButton.isSelected = data.isFavorite
   }
   

@@ -59,6 +59,7 @@ class CalculatorView: UIView {
     label.font = .systemFont(ofSize: 20, weight: .medium)
     label.textAlignment = .center
     label.numberOfLines = 0
+    label.textColor = .label
     label.text = "계산 결과가 여기에 표시됩니다"
     return label
   }()
