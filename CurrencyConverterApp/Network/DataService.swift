@@ -7,27 +7,12 @@
 
 import Foundation
 
-enum DataError: Error, LocalizedError {
-  case invalidURL
-  case parsingFailed
-  case requestFailed
-  
-  var errorDescription: String? {
-    switch self {
-    case .invalidURL:
-      return "URL 주소가 잘못되었습니다."
-    case .parsingFailed:
-      return "데이터를 불러올 수 없습니다."
-    case .requestFailed:
-      return "데이터 요청에 실패했습니다."
-    }
-  }
-}
-
 class DataService {
   
-  func fetchData() async throws -> ExchangeRates {
+  func fetchData() async throws -> ExchangeRateResponse {
     let urlString = "https://open.er-api.com/v6/latest/USD"
+    
+    // URL 유효성 확인
     guard let url = URL(string: urlString) else {
       throw DataError.invalidURL
     }
@@ -35,14 +20,14 @@ class DataService {
     do {
       let (data, response) = try await URLSession.shared.data(from: url)
       
-      // 상태코드 확인 (200 OK 아니면 에러 처리)
+      // HTTP 상태코드가 정상(200~299)인지 확인
       guard let httpResponse = response as? HTTPURLResponse,
             (200...299).contains(httpResponse.statusCode) else {
         throw DataError.parsingFailed
       }
       
-      // 디코딩
-      let exchangeRateData = try JSONDecoder().decode(ExchangeRates.self, from: data)
+      // JSON -> 모델 파싱
+      let exchangeRateData = try JSONDecoder().decode(ExchangeRateResponse.self, from: data)
       
       return exchangeRateData
       

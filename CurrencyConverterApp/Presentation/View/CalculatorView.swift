@@ -8,10 +8,12 @@
 import UIKit
 import SnapKit
 
+// 환율 계산기 화면의 View
 class CalculatorView: UIView {
   
   var convertButtonTapped: ((String) -> Void)?
   
+  // 통화 코드
   private let currencyLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 24, weight: .bold)
@@ -19,6 +21,7 @@ class CalculatorView: UIView {
     return label
   }()
   
+  // 국가 이름
   private let countryLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 16)
@@ -26,6 +29,7 @@ class CalculatorView: UIView {
     return label
   }()
   
+  // 통화/국가 라벨을 담을 수직 스택
   private let labelStackView: UIStackView = {
     let stackView = UIStackView()
     stackView.axis = .vertical
@@ -34,6 +38,7 @@ class CalculatorView: UIView {
     return stackView
   }()
   
+  // 사용자 입력 필드
   private let amountTextField: UITextField = {
     let textField = UITextField()
     textField.borderStyle = .roundedRect
@@ -43,6 +48,7 @@ class CalculatorView: UIView {
     return textField
   }()
   
+  // 환율 계산 버튼
   private lazy var convertButton: UIButton = {
     let button = UIButton()
     button.setTitle("환율 계산", for: .normal)
@@ -54,6 +60,7 @@ class CalculatorView: UIView {
     return button
   }()
   
+  // 결과를 표시할 라벨
   let resultLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 20, weight: .medium)
@@ -73,6 +80,7 @@ class CalculatorView: UIView {
     fatalError("init(coder:) has not been implemented")
   }
   
+  // UI 컴포넌트 설정 및 제약조건
   private func setupUI() {
     [currencyLabel, countryLabel].forEach { labelStackView.addArrangedSubview($0) }
     [labelStackView, amountTextField, convertButton, resultLabel].forEach { addSubview($0) }
@@ -100,11 +108,13 @@ class CalculatorView: UIView {
     }
   }
   
+  // 외부에서 View에 데이터 세팅
   func configure(data: ExchangeRateData) {
     currencyLabel.text = data.currencyCode
     countryLabel.text = data.country
   }
   
+  // 환율 계산 버튼 클릭 시 호출
   @objc private func handleConvertButtonTap() {
     endEditing(true) // 키보드 닫기
     let input = amountTextField.text ?? ""

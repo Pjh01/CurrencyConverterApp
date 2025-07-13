@@ -17,13 +17,15 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     guard let windowScene = (scene as? UIWindowScene) else { return }
     let window = UIWindow(windowScene: windowScene)
     
-    
+    // 마지막으로 방문한 화면 정보를 CoreData에서 로드
     let lastScreen = CoreDataManager.shared.loadLastVisitedScreen()
     let exchangeRateViewController = ExchangeRateViewController()
     exchangeRateViewController.navigationItem.title = "환율 정보"
     let navigationController = UINavigationController(rootViewController: exchangeRateViewController)
     
-    if lastScreen.screenType == "calculator" {
+    // 마지막 방문한 화면이 'calculator'인 경우 계산기 화면으로 이동
+    if lastScreen.screenType == .calculator {
+      // CoreData에 저장된 환율 데이터를 기반으로 ViewModel 생성
       let viewModel = CalculatorViewModel(rateData: getSavedRate(currencyCode: lastScreen.currencyCode))
       let calculatorViewController = CalculatorViewController(viewModel: viewModel)
       
@@ -35,8 +37,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     self.window = window
   }
   
+  // CoreData에 저장된 환율 정보로 ExchangeRateData 모델 생성
   private func getSavedRate(currencyCode: String) -> ExchangeRateData {
-    let entity = CoreDataManager.shared.getExchangeRate(for: currencyCode)
+    let entity = CoreDataManager.shared.loadExchangeRate(for: currencyCode)
+    
+    guard !entity.currencyCode.isEmpty else {
+      return ExchangeRateData(
+        currencyCode: currencyCode,
+        country: CountryData[currencyCode] ?? "Unknown",
+        rate: 0.0
+      )
+    }
+    
     return ExchangeRateData(
       currencyCode: entity.currencyCode,
       country: CountryData[currencyCode] ?? "Unknown",

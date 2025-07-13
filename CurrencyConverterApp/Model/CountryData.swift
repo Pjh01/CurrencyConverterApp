@@ -5,6 +5,7 @@
 //  Created by estelle on 7/10/25.
 //
 
+// 통화 코드와 국가명 매핑 데이터
 let CountryData = [
   "USD": "미국",
   "AED": "아랍에미리트",
