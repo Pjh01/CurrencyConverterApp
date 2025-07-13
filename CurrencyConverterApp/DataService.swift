@@ -26,7 +26,7 @@ enum DataError: Error, LocalizedError {
 
 class DataService {
   
-  func fetchCurrencyData() async throws -> [ExchangeRateData] {
+  func fetchData() async throws -> [ExchangeRateData] {
     let urlString = "https://open.er-api.com/v6/latest/USD"
     guard let url = URL(string: urlString) else {
       throw DataError.invalidURL
@@ -42,9 +42,9 @@ class DataService {
       }
       
       // 디코딩
-      let currencyData = try JSONDecoder().decode(ExchangeRates.self, from: data)
+      let exchangeRateData = try JSONDecoder().decode(ExchangeRates.self, from: data)
       
-      let rates = currencyData.rates.map { currencyCode, rate in
+      let rates = exchangeRateData.rates.map { currencyCode, rate in
         ExchangeRateData(
           currencyCode: currencyCode,
           country: CountryData[currencyCode] ?? "Unknown",
