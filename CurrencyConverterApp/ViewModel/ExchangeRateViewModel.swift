@@ -5,6 +5,8 @@
 //  Created by estelle on 7/10/25.
 //
 
+import Foundation
+
 class ExchangeRateViewModel: ViewModelProtocol {
   
   enum Action {
@@ -44,7 +46,8 @@ class ExchangeRateViewModel: ViewModelProtocol {
       case .fetch:
         self?.fetchRates()
       case .search(let keyword):
-        self?.search(keyword: keyword)
+        self?.state.searchKeyword = keyword
+        self?.updateRateState()
       case .toggleFavorite(let code):
         self?.toggleFavorite(code: code)
       }
@@ -56,26 +59,35 @@ class ExchangeRateViewModel: ViewModelProtocol {
       do {
         let result = try await dataService.fetchData()
         
+        let newTime = Date(timeIntervalSince1970: TimeInterval(result.timeLastUpdateUnix))
+        
         let favoriteCurrencyCodes = coreDataManager.loadFavorites()
-        self.allRates = result.rates.map { currencyCode, rate in
-          ExchangeRateData(
+        self.allRates = result.rates.compactMap { currencyCode, rate in
+          var changeStatus: RateChangeStatus
+          let entity = coreDataManager.getExchangeRate(for: currencyCode)
+          
+          if Calendar.current.isDate(entity.timeStamp, inSameDayAs: newTime) {
+            changeStatus = RateChangeStatus(rawValue: entity.changeStatus) ?? .same
+          } else {
+            changeStatus = compareRate(old: entity.rate, new: rate)
+            
+            coreDataManager.updateExchangeRate(currencyCode: currencyCode, rate: rate, changeStatus: changeStatus.rawValue, timeStamp: newTime)
+          }
+          
+          return ExchangeRateData(
             currencyCode: currencyCode,
             country: CountryData[currencyCode] ?? "Unknown",
             rate: rate,
-            isFavorite: favoriteCurrencyCodes.contains(currencyCode)
+            isFavorite: favoriteCurrencyCodes.contains(currencyCode),
+            changeStatus: changeStatus
           )
-        }.sorted { $0.currencyCode < $1.currencyCode }
+        }
         
         updateRateState()
       } catch {
         state = State(errorMessage: DataError.parsingFailed.localizedDescription)
       }
     }
-  }
-  
-  private func search(keyword: String) {
-    state.searchKeyword = keyword
-    updateRateState()
   }
   
   private func toggleFavorite(code: String) {
@@ -100,7 +112,7 @@ class ExchangeRateViewModel: ViewModelProtocol {
       $0.currencyCode.localizedCaseInsensitiveContains(keyword) ||
       $0.country.localizedCaseInsensitiveContains(keyword)
     }
-  
+    
     state = State(
       rates: sortItems(filtered),
       errorMessage: nil,
@@ -112,5 +124,11 @@ class ExchangeRateViewModel: ViewModelProtocol {
     let favorites = items.filter { $0.isFavorite }.sorted { $0.currencyCode < $1.currencyCode }
     let nonFavorites = items.filter { !$0.isFavorite }.sorted { $0.currencyCode < $1.currencyCode }
     return favorites + nonFavorites
+  }
+  
+  private func compareRate(old: Double, new: Double) -> RateChangeStatus {
+      let diff = new - old
+      if abs(diff) <= 0.01 { return .same }
+      return diff > 0 ? .up : .down
   }
 }
