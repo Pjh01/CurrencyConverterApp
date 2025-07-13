@@ -13,6 +13,7 @@ class ExchangeRateViewModel: ViewModelProtocol {
     case fetch
     case search(String)
     case toggleFavorite(String)
+    case saveLastVisitedScreen
   }
   
   struct State {
@@ -31,11 +32,9 @@ class ExchangeRateViewModel: ViewModelProtocol {
   
   private var allRates = [ExchangeRateData]()
   private let dataService: DataService
-  private let coreDataManager: CoreDataManager
   
-  init(dataService: DataService = DataService(), coreDataManager: CoreDataManager) {
+  init(dataService: DataService = DataService()) {
     self.dataService = dataService
-    self.coreDataManager = coreDataManager
     self.state = State()
     setupActions()
   }
@@ -50,6 +49,8 @@ class ExchangeRateViewModel: ViewModelProtocol {
         self?.updateRateState()
       case .toggleFavorite(let code):
         self?.toggleFavorite(code: code)
+      case .saveLastVisitedScreen:
+        CoreDataManager.shared.saveLastVisitedScreen(screenType: "list", currencyCode: "")
       }
     }
   }
@@ -61,17 +62,17 @@ class ExchangeRateViewModel: ViewModelProtocol {
         
         let newTime = Date(timeIntervalSince1970: TimeInterval(result.timeLastUpdateUnix))
         
-        let favoriteCurrencyCodes = coreDataManager.loadFavorites()
+        let favoriteCurrencyCodes = CoreDataManager.shared.loadFavorites()
         self.allRates = result.rates.compactMap { currencyCode, rate in
           var changeStatus: RateChangeStatus
-          let entity = coreDataManager.getExchangeRate(for: currencyCode)
+          let entity = CoreDataManager.shared.getExchangeRate(for: currencyCode)
           
           if Calendar.current.isDate(entity.timeStamp, inSameDayAs: newTime) {
             changeStatus = RateChangeStatus(rawValue: entity.changeStatus) ?? .same
           } else {
             changeStatus = compareRate(old: entity.rate, new: rate)
             
-            coreDataManager.updateExchangeRate(currencyCode: currencyCode, rate: rate, changeStatus: changeStatus.rawValue, timeStamp: newTime)
+            CoreDataManager.shared.updateExchangeRate(currencyCode: currencyCode, rate: rate, changeStatus: changeStatus.rawValue, timeStamp: newTime)
           }
           
           return ExchangeRateData(
@@ -95,9 +96,9 @@ class ExchangeRateViewModel: ViewModelProtocol {
       allRates[index].isFavorite.toggle()
       
       if allRates[index].isFavorite {
-        coreDataManager.addFavorite(code)
+        CoreDataManager.shared.addFavorite(code)
       } else {
-        coreDataManager.removeFavorite(code)
+        CoreDataManager.shared.removeFavorite(code)
       }
       
       updateRateState()
@@ -127,8 +128,8 @@ class ExchangeRateViewModel: ViewModelProtocol {
   }
   
   private func compareRate(old: Double, new: Double) -> RateChangeStatus {
-      let diff = new - old
-      if abs(diff) <= 0.01 { return .same }
-      return diff > 0 ? .up : .down
+    let diff = new - old
+    if abs(diff) <= 0.01 { return .same }
+    return diff > 0 ? .up : .down
   }
 }

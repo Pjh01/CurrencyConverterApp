@@ -10,7 +10,7 @@ import CoreData
 import UIKit
 
 final class CoreDataManager {
-  //static let shared = CoreDataManager()
+  static let shared = CoreDataManager()
   let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
   
   func addFavorite(_ code: String) {
@@ -77,29 +77,29 @@ final class CoreDataManager {
     saveContext()
   }
   
-//  func getLatestTimeStamp() -> Date? {
-//      let request = NSFetchRequest<NSFetchRequestResult>(entityName: "ExchangeRateStatus")
-//      request.resultType = .dictionaryResultType
-//      request.propertiesToFetch = ["timeStamp"]
-//      request.sortDescriptors = [NSSortDescriptor(key: "timeStamp", ascending: false)]
-//      request.fetchLimit = 1
-//
-//      do {
-//          if let result = try context.fetch(request).first as? [String: Any],
-//             let timeStamp = result["timeStamp"] as? Date {
-//              return timeStamp
-//          }
-//      } catch {
-//          print("Failed to fetch latest timeStamp: \(error)")
-//      }
-//
-//      return nil
-//  }
+  func saveLastVisitedScreen(screenType: String, currencyCode: String) {
+    let request: NSFetchRequest<LastVisitedScreen> = LastVisitedScreen.fetchRequest()
+    if let items = try? context.fetch(request) {
+      items.forEach { context.delete($0) }
+    }
+    
+    let newItem = LastVisitedScreen(context: context)
+    newItem.screenType = screenType
+    newItem.currencyCode = currencyCode
+    saveContext()
+  }
+  
+  func loadLastVisitedScreen() -> (screenType: String, currencyCode: String) {
+    let request: NSFetchRequest<LastVisitedScreen> = LastVisitedScreen.fetchRequest()
+    if let item = try? context.fetch(request).first {
+      return (item.screenType ?? "list", item.currencyCode ?? "")
+    }
+    return ("list", "")
+  }
   
   private func saveContext() {
     if context.hasChanges {
       do {
-        //print("\(context)")
         try context.save()
       } catch {
         print("core data save error: \(error)")

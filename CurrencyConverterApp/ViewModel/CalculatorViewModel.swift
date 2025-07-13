@@ -9,6 +9,7 @@ class CalculatorViewModel: ViewModelProtocol {
   
   enum Action {
     case convert(String)
+    case saveLastVisitedScreen
   }
   
   struct State {
@@ -32,6 +33,8 @@ class CalculatorViewModel: ViewModelProtocol {
       switch action {
       case .convert(let input):
         self?.convert(input: input)
+      case .saveLastVisitedScreen:
+        CoreDataManager.shared.saveLastVisitedScreen(screenType: "calculator", currencyCode: rateData.currencyCode)
       }
     }
   }

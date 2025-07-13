@@ -32,6 +32,11 @@ class CalculatorViewController: UIViewController {
     setupAction()
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    calculatorViewModel.action?(.saveLastVisitedScreen)
+  }
+  
   private func setupUI() {
     view.backgroundColor = .systemBackground
     navigationController?.navigationBar.prefersLargeTitles = true

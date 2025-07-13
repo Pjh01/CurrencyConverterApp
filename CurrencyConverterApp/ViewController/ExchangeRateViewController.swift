@@ -10,7 +10,7 @@ import UIKit
 class ExchangeRateViewController: UIViewController {
   
   let exchangeRateView = ExchangeRateView()
-  let exchangeRateViewModel = ExchangeRateViewModel(coreDataManager: CoreDataManager())
+  let exchangeRateViewModel = ExchangeRateViewModel()
   
   override func loadView() {
     self.view = exchangeRateView
@@ -24,9 +24,13 @@ class ExchangeRateViewController: UIViewController {
     exchangeRateViewModel.action?(.fetch)
   }
   
+  override func viewDidAppear(_ animated: Bool) {
+    super.viewDidAppear(animated)
+    exchangeRateViewModel.action?(.saveLastVisitedScreen)
+  }
+  
   private func setupUI() {
     view.backgroundColor = .systemBackground
-    navigationItem.title = "환율 정보"
     navigationController?.navigationBar.prefersLargeTitles = true
     navigationItem.largeTitleDisplayMode = .always
   }
