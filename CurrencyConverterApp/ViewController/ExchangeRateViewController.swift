@@ -10,7 +10,7 @@ import UIKit
 class ExchangeRateViewController: UIViewController {
   
   let exchangeRateView = ExchangeRateView()
-  let exchangeRateViewModel = ExchangeRateViewModel()
+  let exchangeRateViewModel = ExchangeRateViewModel(coreDataManager: CoreDataManager())
   
   override func loadView() {
     self.view = exchangeRateView

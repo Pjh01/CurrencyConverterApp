@@ -27,6 +27,7 @@ class CalculatorViewModel: ViewModelProtocol {
   
   init(rateData: ExchangeRateData) {
     self.rateData = rateData
+    self.state = State()
     self.action = { [weak self] action in
       switch action {
       case .convert(let input):

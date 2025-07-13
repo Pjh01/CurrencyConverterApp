@@ -22,7 +22,11 @@ extension ExchangeRateViewController: UITableViewDataSource {
   
   func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
     guard let cell = tableView.dequeueReusableCell(withIdentifier: ExchangeRateCell.id) as? ExchangeRateCell else { return UITableViewCell() }
-    cell.configureCell(exchangeRateViewModel.state.rates[indexPath.row])
+    let rate = exchangeRateViewModel.state.rates[indexPath.row]
+    cell.configureCell(rate)
+    cell.favoriteButtonTapped = { [weak self] in
+      self?.exchangeRateViewModel.action?(.toggleFavorite(rate.currencyCode))
+    }
     return cell
   }
 }

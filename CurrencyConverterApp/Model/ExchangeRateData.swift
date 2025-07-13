@@ -9,6 +9,7 @@ struct ExchangeRateData {
   let currencyCode: String
   let country: String
   let rate: Double
+  var isFavorite: Bool = false
   
   var formattedRate: String {
     return rate.formatted(format: "%.4f")

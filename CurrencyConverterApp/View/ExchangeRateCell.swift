@@ -12,6 +12,8 @@ final class ExchangeRateCell: UITableViewCell {
   
   static let id = "ExchangeRateCell"
   
+  var favoriteButtonTapped: (() -> Void)?
+  
   private let currencyLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 16, weight: .medium)
@@ -41,6 +43,16 @@ final class ExchangeRateCell: UITableViewCell {
     return label
   }()
   
+  private lazy var favoriteButton: UIButton = {
+    let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
+    let button = UIButton()
+    button.setImage(UIImage(systemName: "star", withConfiguration: config), for: .normal)
+    button.setImage(UIImage(systemName: "star.fill", withConfiguration: config), for: .selected)
+    button.tintColor = .systemYellow
+    button.addTarget(self, action: #selector(favoriteButtonTap), for: .touchUpInside)
+    return button
+  }()
+  
   override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
     super.init(style: style, reuseIdentifier: reuseIdentifier)
     setupUI()
@@ -58,7 +70,7 @@ final class ExchangeRateCell: UITableViewCell {
   private func setupUI() {
     contentView.backgroundColor = .systemBackground
     [currencyLabel, countryLabel].forEach { labelStackView.addArrangedSubview($0) }
-    [labelStackView, rateLabel].forEach { contentView.addSubview($0) }
+    [labelStackView, rateLabel, favoriteButton].forEach { contentView.addSubview($0) }
     
     labelStackView.snp.makeConstraints {
       $0.leading.equalToSuperview().inset(16)
@@ -66,10 +78,15 @@ final class ExchangeRateCell: UITableViewCell {
     }
     
     rateLabel.snp.makeConstraints {
-      $0.trailing.equalToSuperview().inset(16)
       $0.centerY.equalToSuperview()
       $0.leading.greaterThanOrEqualTo(labelStackView.snp.trailing).offset(16)
       $0.width.equalTo(120)
+    }
+    
+    favoriteButton.snp.makeConstraints {
+      $0.trailing.equalToSuperview().inset(16)
+      $0.centerY.equalToSuperview()
+      $0.leading.equalTo(rateLabel.snp.trailing).offset(16)
     }
   }
   
@@ -77,5 +94,10 @@ final class ExchangeRateCell: UITableViewCell {
     currencyLabel.text = data.currencyCode
     countryLabel.text = data.country
     rateLabel.text = data.formattedRate
+    favoriteButton.isSelected = data.isFavorite
+  }
+  
+  @objc private func favoriteButtonTap() {
+    favoriteButtonTapped?()
   }
 }
