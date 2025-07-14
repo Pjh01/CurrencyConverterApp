@@ -9,16 +9,21 @@ import Foundation
 import CoreData
 import UIKit
 
+// CoreData 관련 로직을 담당하는 싱글톤 클래스
 final class CoreDataManager {
-  //static let shared = CoreDataManager()
+  static let shared = CoreDataManager()
   let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
   
+  // MARK: - 즐겨찾기 관련
+  
+  // 즐겨찾기 추가
   func addFavorite(_ code: String) {
     let entity = FavoriteCurrency(context: context)
     entity.currencyCode = code
     saveContext()
   }
   
+  // 즐겨찾기 삭제
   func removeFavorite(_ code: String) {
     let request: NSFetchRequest<FavoriteCurrency> = FavoriteCurrency.fetchRequest()
     request.predicate = NSPredicate(format: "currencyCode == %@", code)
@@ -29,13 +34,17 @@ final class CoreDataManager {
     }
   }
   
+  // 즐겨찾기 로드 (currencyCode 리스트 반환)
   func loadFavorites() -> [String] {
     let request: NSFetchRequest<FavoriteCurrency> = FavoriteCurrency.fetchRequest()
     let favoriteItems = try? context.fetch(request)
     return favoriteItems?.compactMap { $0.currencyCode } ?? []
   }
   
-  func getExchangeRate(for currencyCode: String) -> (currencyCode: String, rate: Double, changeStatus: String, timeStamp: Date) {
+  // MARK: - 환율 정보 관련
+  
+  // 특정 currencyCode의 환율 정보 로드 (없으면 mock 데이터 반환)
+  func loadExchangeRate(for currencyCode: String) -> (currencyCode: String, rate: Double, changeStatus: String, timeStamp: Date) {
     let request: NSFetchRequest<ExchangeRateStatus> = ExchangeRateStatus.fetchRequest()
     request.predicate = NSPredicate(format: "currencyCode == %@", currencyCode)
     
@@ -54,6 +63,7 @@ final class CoreDataManager {
     }
   }
   
+  // 특정 환율 정보를 CoreData에 저장 or 업데이트
   func updateExchangeRate(
     currencyCode: String,
     rate: Double,
@@ -77,35 +87,37 @@ final class CoreDataManager {
     saveContext()
   }
   
-//  func getLatestTimeStamp() -> Date? {
-//      let request = NSFetchRequest<NSFetchRequestResult>(entityName: "ExchangeRateStatus")
-//      request.resultType = .dictionaryResultType
-//      request.propertiesToFetch = ["timeStamp"]
-//      request.sortDescriptors = [NSSortDescriptor(key: "timeStamp", ascending: false)]
-//      request.fetchLimit = 1
-//
-//      do {
-//          if let result = try context.fetch(request).first as? [String: Any],
-//             let timeStamp = result["timeStamp"] as? Date {
-//              return timeStamp
-//          }
-//      } catch {
-//          print("Failed to fetch latest timeStamp: \(error)")
-//      }
-//
-//      return nil
-//  }
+  // MARK: - 화면 정보 관련
+  
+  // 마지막 방문 화면 정보 저장
+  func saveLastVisitedScreen(screenType: String, currencyCode: String) {
+    let request: NSFetchRequest<LastVisitedScreen> = LastVisitedScreen.fetchRequest()
+    if let items = try? context.fetch(request) {
+      items.forEach { context.delete($0) }
+    }
+    
+    let newItem = LastVisitedScreen(context: context)
+    newItem.screenType = screenType
+    newItem.currencyCode = currencyCode
+    saveContext()
+  }
+  
+  // 마지막 방문 화면 정보 로드
+  func loadLastVisitedScreen() -> (screenType: ScreenType, currencyCode: String) {
+    let request: NSFetchRequest<LastVisitedScreen> = LastVisitedScreen.fetchRequest()
+    if let item = try? context.fetch(request).first {
+      return (ScreenType(rawValue: item.screenType ?? "") ?? .list, item.currencyCode ?? "")
+    }
+    return (.list, "")
+  }
   
   private func saveContext() {
     if context.hasChanges {
       do {
-        //print("\(context)")
         try context.save()
       } catch {
         print("core data save error: \(error)")
       }
     }
   }
-  
-  
 }

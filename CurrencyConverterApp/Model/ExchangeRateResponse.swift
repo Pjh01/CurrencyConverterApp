@@ -5,7 +5,7 @@
 //  Created by estelle on 7/10/25.
 //
 
-struct ExchangeRates: Codable {
+struct ExchangeRateResponse: Codable {
   let timeLastUpdateUnix: Int64
   let rates: [String: Double]
   

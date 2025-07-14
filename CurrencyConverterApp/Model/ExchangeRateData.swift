@@ -7,6 +7,7 @@
 
 import Foundation
 
+// 셀 데이터
 struct ExchangeRateData {
   let currencyCode: String
   let country: String

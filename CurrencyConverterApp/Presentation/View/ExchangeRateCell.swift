@@ -8,12 +8,14 @@
 import UIKit
 import SnapKit
 
+// 환율 정보를 표시하는 테이블뷰 셀
 final class ExchangeRateCell: UITableViewCell {
   
-  static let id = "ExchangeRateCell"
+  static let id = "ExchangeRateCell"  // 셀 식별자
   
   var favoriteButtonTapped: (() -> Void)?
   
+  // 통화 코드
   private let currencyLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 16, weight: .medium)
@@ -21,6 +23,7 @@ final class ExchangeRateCell: UITableViewCell {
     return label
   }()
   
+  // 국가명
   private let countryLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 14)
@@ -28,6 +31,7 @@ final class ExchangeRateCell: UITableViewCell {
     return label
   }()
   
+  // 통화/국가 정보를 담는 수직 스택 뷰
   private let labelStackView: UIStackView = {
     let stackView = UIStackView()
     stackView.axis = .vertical
@@ -35,6 +39,7 @@ final class ExchangeRateCell: UITableViewCell {
     return stackView
   }()
   
+  // 환율
   private let rateLabel: UILabel = {
     let label = UILabel()
     label.font = .systemFont(ofSize: 16)
@@ -43,6 +48,7 @@ final class ExchangeRateCell: UITableViewCell {
     return label
   }()
   
+  // 환율 변화 상태
   private let rateChangeLabel: UILabel = {
       let label = UILabel()
       label.font = .systemFont(ofSize: 16)
@@ -50,6 +56,7 @@ final class ExchangeRateCell: UITableViewCell {
       return label
   }()
   
+  // 즐겨찾기 버튼
   private lazy var favoriteButton: UIButton = {
     let config = UIImage.SymbolConfiguration(pointSize: 20, weight: .medium)
     let button = UIButton()
@@ -69,11 +76,13 @@ final class ExchangeRateCell: UITableViewCell {
     fatalError("init(coder:) has not been implemented")
   }
   
+  // 셀의 구분선 여백 조정
   override func layoutSubviews() {
     super.layoutSubviews()
     separatorInset = UIEdgeInsets(top: 0, left: 16, bottom: 0, right: 16)
   }
   
+  // UI 컴포넌트 설정 및 제약조건
   private func setupUI() {
     contentView.backgroundColor = .systemBackground
     [currencyLabel, countryLabel].forEach { labelStackView.addArrangedSubview($0) }
@@ -111,6 +120,7 @@ final class ExchangeRateCell: UITableViewCell {
     favoriteButton.isSelected = data.isFavorite
   }
   
+  // 즐겨찾기 버튼 클릭 이벤트 처리
   @objc private func favoriteButtonTap() {
     favoriteButtonTapped?()
   }
